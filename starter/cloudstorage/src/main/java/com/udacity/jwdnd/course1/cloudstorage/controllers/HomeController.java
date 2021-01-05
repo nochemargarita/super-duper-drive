@@ -1,9 +1,7 @@
 package com.udacity.jwdnd.course1.cloudstorage.controllers;
 
 import com.udacity.jwdnd.course1.cloudstorage.models.CredentialForm;
-import com.udacity.jwdnd.course1.cloudstorage.models.Note;
 import com.udacity.jwdnd.course1.cloudstorage.models.NoteForm;
-import com.udacity.jwdnd.course1.cloudstorage.models.User;
 import com.udacity.jwdnd.course1.cloudstorage.services.CredentialService;
 import com.udacity.jwdnd.course1.cloudstorage.services.NoteService;
 
@@ -74,8 +72,7 @@ public class HomeController {
     @PostMapping("/credential")
     public String addCredential(
             Authentication authentication,
-            @ModelAttribute("credentialFields") CredentialForm credentialFields,
-            Model model
+            @ModelAttribute("credentialFields") CredentialForm credentialFields
     ) {
         String currentUsername = authentication.getName();
 
@@ -83,10 +80,19 @@ public class HomeController {
 
         if (isANewCredential) {
             credentialService.addCredential(credentialFields, currentUsername);
+        } else {
+            credentialService.editCredential(credentialFields, currentUsername);
         }
-//        else {
-//            credentialService.editCredential(credentialFields, currentUsername);
-//        }
+
+        // ensures that the user is redirected back to homepage
+        return "redirect:/home";
+    }
+
+    @PostMapping("delete/credential/{credentialId}")
+    public String deleteCredential(Authentication authentication, @PathVariable("credentialId") Integer credentialId) {
+        String currentUsername = authentication.getName();
+
+        credentialService.deleteCredential(credentialId, currentUsername);
 
         // ensures that the user is redirected back to homepage
         return "redirect:/home";

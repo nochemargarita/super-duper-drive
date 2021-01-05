@@ -131,7 +131,7 @@
                         </button>
 
                         <div class="table-responsive">
-                            <table class="table table-striped" th:object="${credentials}" id="credentialTable">
+                            <table class="table table-striped" id="credentialTable">
                                 <thead>
                                     <tr>
                                         <th style="width: 20%" scope="col"></th>
@@ -143,12 +143,30 @@
                                 <tbody>
                                 <tr th:each="credential : ${credentials}">
                                     <td>
-                                        <button type="button" class="btn btn-success">Edit</button>
-                                        <a class="btn btn-danger">Delete</a>
+                                        <button
+                                                type="button"
+                                                class="btn btn-success"
+                                                th:onclick="javascript:showCreditModal(
+                                                    [[${credential.getCreditId()}]],
+                                                    [[ ${credential.getUrl()}]],
+                                                    [[${credential.getUsername()}]],
+                                                    [[${credential.getPassword()}]]
+                                                )"
+                                        >
+                                            Edit
+                                        </button>
+                                        <form
+                                                th:action="@{/delete/credential/{credentialId}(credentialId = ${credential.getCredentialId()})}"
+                                                class="d-inline-block"
+                                                method="POST"
+                                                action="#"
+                                        >
+                                            <button class="btn btn-danger" type="submit">Delete</button>
+                                        </form>
                                     </td>
-                                    <th th:text="${}" scope="row">Example Credential URL</th>
-                                    <td th:text="${credential.getUsername()}">Example Credential Username</td>
-                                    <td th:text="${credential.getPassword()}">Example Credential Password</td>
+                                    <th th:text="${credential.getUrl()}" scope="row"></th>
+                                    <td th:text="${credential.getUsername()}"></td>
+                                    <td th:text="${credential.getPassword()}"></td>
                                 </tr>
                                 </tbody>
                             </table>
