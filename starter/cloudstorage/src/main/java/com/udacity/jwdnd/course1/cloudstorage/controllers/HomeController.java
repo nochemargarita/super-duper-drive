@@ -37,7 +37,7 @@ public class HomeController {
         return "home";
     }
 
-    // Notes path starts here
+    // Notes starts here
     @PostMapping("/note")
     public String addNote(Authentication authentication, @ModelAttribute("noteFields") NoteForm noteFields, Model model) {
         String currentUsername = authentication.getName();
@@ -69,7 +69,9 @@ public class HomeController {
         return new NoteForm();
     }
 
-    // Notes path ends here
+    // Notes ends here
+
+
 
 
 }
