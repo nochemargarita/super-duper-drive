@@ -24,7 +24,7 @@ public class CredentialService {
         this.encryptionService = encryptionService;
     }
 
-    private String getKey() {
+    private String getRandomKey() {
         SecureRandom random = new SecureRandom();
         byte[] key = new byte[16];
         random.nextBytes(key);
@@ -52,11 +52,12 @@ public class CredentialService {
 
     public int addCredential(CredentialForm credentialFields, String username) {
         User user = userMapper.getUser(username);
-        String key = getKey();
-        String encryptedPassword = encryptionService.encryptValue(credentialFields.getCredentialPassword(), key);
+
+        String randomKey = getRandomKey();
+        String encryptedPassword = encryptionService.encryptValue(credentialFields.getCredentialPassword(), randomKey);
 
         return credentialMapper.insert(
-                new Credential(null, credentialFields.getCredentialUrl(), credentialFields.getCredentialUsername(), key, encryptedPassword, user.getUserId())
+                new Credential(null, credentialFields.getCredentialUrl(), credentialFields.getCredentialUsername(), randomKey, encryptedPassword, user.getUserId())
         );
     }
 
@@ -64,14 +65,13 @@ public class CredentialService {
         User user = userMapper.getUser(username);
         Credential credential = credentialMapper.getCredential(user.getUserId(), Integer.parseInt(credentialFields.getCredentialId()));
 
-        String key = getKey();
-        String encryptedPassword = encryptionService.encryptValue(credentialFields.getCredentialPassword(), key);
+        String randomKey = getRandomKey();
+        String encryptedPassword = encryptionService.encryptValue(credentialFields.getCredentialPassword(), randomKey);
 
         credential.setUrl(credentialFields.getCredentialUrl());
-        credential.setUsername(credential.getUsername());
-        credential.setKey(credential.getKey());
-        credential.setDecryptedPassword(encryptedPassword);
-
+        credential.setUsername(credentialFields.getCredentialUsername());
+        credential.setKey(randomKey);
+        credential.setPassword(encryptedPassword);
 
         return credentialMapper.edit(credential);
     }
