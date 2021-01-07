@@ -34,9 +34,15 @@ public class HomeController {
         this.fileService = fileService;
     }
 
+    /*
+    * Most of the requests redirects back to home after completing an action
+    * instead of staying to the route where the request was made.
+    * */
+
     @GetMapping("/home")
     public String getHomePage(Authentication authentication, Model model) {
         String currentUsername = authentication.getName();
+
         // Used for adding attributes for thymeleaf to iterate
         model.addAttribute("notes", noteService.getUserNotes(currentUsername));
         model.addAttribute("credentials", credentialService.getUserCredentials(currentUsername));
@@ -58,7 +64,6 @@ public class HomeController {
             noteService.editNote(noteFields, currentUsername);
         }
 
-        // ensures that the user is redirected back to homepage
         return "redirect:/home";
     }
 
@@ -68,7 +73,6 @@ public class HomeController {
 
         noteService.deleteNote(noteId, currentUsername);
 
-        // ensures that the user is redirected back to homepage
         return "redirect:/home";
     }
 
@@ -87,7 +91,6 @@ public class HomeController {
             @ModelAttribute("credentialFields") CredentialForm credentialFields
     ) {
         String currentUsername = authentication.getName();
-
         boolean isANewCredential = credentialFields.getCredentialId().length() == 0;
 
         if (isANewCredential) {
@@ -96,7 +99,6 @@ public class HomeController {
             credentialService.editCredential(credentialFields, currentUsername);
         }
 
-        // ensures that the user is redirected back to homepage
         return "redirect:/home";
     }
 
@@ -106,7 +108,6 @@ public class HomeController {
 
         credentialService.deleteCredential(credentialId, currentUsername);
 
-        // ensures that the user is redirected back to homepage
         return "redirect:/home";
     }
 
@@ -141,7 +142,6 @@ public class HomeController {
             e.printStackTrace();
         }
 
-        // ensures that the user is redirected back to homepage
         return "redirect:/home";
     }
 
@@ -167,7 +167,6 @@ public class HomeController {
 
         fileService.deleteFile(fileId, currentUsername);
 
-        // ensures that the user is redirected back to homepage
         return "redirect:/home";
     }
 
