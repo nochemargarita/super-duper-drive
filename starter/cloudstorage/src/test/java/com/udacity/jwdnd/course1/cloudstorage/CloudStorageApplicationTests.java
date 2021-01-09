@@ -75,14 +75,14 @@ class CloudStorageApplicationTests {
 		signup = new SignupPage(driver);
 
 		signup.setFormValues(firstName, lastName, username + "2", password);
-		assertEquals("You successfully signed up! Please continue to the login page.", signup.getSuccessMessage());
+		assertEquals("You successfully signed up! Enter username and password to login.", signup.getSuccessMessage());
 
 		driver.get(baseURL + "/login");
 		login = new LoginPage(driver);
 
 		assertEquals("Login", driver.getTitle());
 
-		login.setFormValues(username, password);
+		login.setFormValues(username + "2", password);
 
 		driver.get(baseURL + "/home");
 		home = new HomePage(driver);
