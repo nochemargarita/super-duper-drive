@@ -25,6 +25,7 @@ public class NoteService {
 
     public int addNote(NoteForm noteFields, String username) {
         User user = userMapper.getUser(username);
+
         return noteMapper.insert(new Note(null, noteFields.getNoteTitle(), noteFields.getNoteDescription(), user.getUserId()));
     }
 
