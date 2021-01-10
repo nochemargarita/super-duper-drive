@@ -250,6 +250,16 @@
                 $('#credential-password').val(password ? password : '');
                 $('#credentialModal').modal('show');
             }
+
+            // For setting upload limit on files(50MB)
+            const uploadField = document.getElementById("fileUpload");
+            const maxFileSize = 50*1024*1024;
+            uploadField.onchange = function() {
+                if(this.files[0].size > maxFileSize){
+                    alert("Oh no, the file is too big, please select less than 50MB!");
+                    this.value = "";
+                };
+            };
         </script>
     </body>
 </html>
