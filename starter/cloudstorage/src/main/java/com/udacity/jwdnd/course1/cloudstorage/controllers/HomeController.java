@@ -27,6 +27,7 @@ public class HomeController {
     private final CredentialService credentialService;
     private final NoteService noteService;
     private final FileService fileService;
+    private final String errorMessage = "Something went wrong! Try again.";
 
     public HomeController(CredentialService credentialService, NoteService noteService, FileService fileService) {
         this.credentialService = credentialService;
@@ -53,25 +54,53 @@ public class HomeController {
 
     // Notes starts here
     @PostMapping("/note")
-    public String addNote(Authentication authentication, @ModelAttribute("noteFields") NoteForm noteFields) {
+    public String addNote(
+            Authentication authentication,
+            @ModelAttribute("noteFields") NoteForm noteFields,
+            RedirectAttributes redirectAttributes
+    ) {
         String currentUsername = authentication.getName();
 
         boolean isANewNote = noteFields.getNoteId().length() == 0;
+        String successMessage = "";
 
         if (isANewNote) {
-            noteService.addNote(noteFields, currentUsername);
+            int rowsAdded = noteService.addNote(noteFields, currentUsername);
+
+            if (rowsAdded > 0) {
+                successMessage = "New note added successfully! See notes tab";
+            }
         } else {
-            noteService.editNote(noteFields, currentUsername);
+            int rowsEdited = noteService.editNote(noteFields, currentUsername);
+
+            if (rowsEdited > 0) {
+                successMessage = "Note edited successfully! See notes tab";
+            }
+        }
+
+        if (successMessage.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
+        } else {
+            redirectAttributes.addFlashAttribute("successMessage", successMessage);
         }
 
         return "redirect:/home";
     }
 
     @PostMapping("delete/note/{noteId}")
-    public String deleteNote(Authentication authentication, @PathVariable("noteId") Integer noteId) {
+    public String deleteNote(
+            Authentication authentication,
+            @PathVariable("noteId") Integer noteId,
+            RedirectAttributes redirectAttributes
+    ) {
         String currentUsername = authentication.getName();
+        int rowsDeleted = noteService.deleteNote(noteId, currentUsername);
 
-        noteService.deleteNote(noteId, currentUsername);
+        if (rowsDeleted > 0) {
+            redirectAttributes.addFlashAttribute("successMessage", "Note deleted successfully! See notes tab");
+        } else {
+            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
+        }
 
         return "redirect:/home";
     }
@@ -88,25 +117,50 @@ public class HomeController {
     @PostMapping("/credential")
     public String addCredential(
             Authentication authentication,
-            @ModelAttribute("credentialFields") CredentialForm credentialFields
+            @ModelAttribute("credentialFields") CredentialForm credentialFields,
+            RedirectAttributes redirectAttributes
     ) {
         String currentUsername = authentication.getName();
         boolean isANewCredential = credentialFields.getCredentialId().length() == 0;
+        String successMessage = "";
 
         if (isANewCredential) {
-            credentialService.addCredential(credentialFields, currentUsername);
+            int rowsAdded = credentialService.addCredential(credentialFields, currentUsername);
+
+            if (rowsAdded > 0) {
+                successMessage = "New credential added successfully! See credentials tab";
+            }
         } else {
-            credentialService.editCredential(credentialFields, currentUsername);
+            int rowsEdited = credentialService.editCredential(credentialFields, currentUsername);
+
+            if (rowsEdited > 0) {
+                successMessage = "Credential edited successfully! See credentials tab";
+            }
+        }
+
+        if (successMessage.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
+        } else {
+            redirectAttributes.addFlashAttribute("successMessage", successMessage);
         }
 
         return "redirect:/home";
     }
 
     @PostMapping("delete/credential/{credentialId}")
-    public String deleteCredential(Authentication authentication, @PathVariable("credentialId") Integer credentialId) {
+    public String deleteCredential(
+            Authentication authentication,
+            @PathVariable("credentialId") Integer credentialId,
+            RedirectAttributes redirectAttributes
+    ) {
         String currentUsername = authentication.getName();
+        int rowsDeleted = credentialService.deleteCredential(credentialId, currentUsername);
 
-        credentialService.deleteCredential(credentialId, currentUsername);
+        if (rowsDeleted > 0) {
+            redirectAttributes.addFlashAttribute("successMessage", "Credential deleted successfully! See credentials tab");
+        } else {
+            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
+        }
 
         return "redirect:/home";
     }
@@ -127,18 +181,20 @@ public class HomeController {
         String currentUsername = authentication.getName();
 
         if (fileUpload.isEmpty()) {
-            redirectAttributes.addFlashAttribute("message", "Cannot upload empty file.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Cannot upload empty file.");
             return "redirect:/home";
         }
 
         if (fileService.isFileNameUnavailable(currentUsername, fileUpload.getOriginalFilename())) {
-            redirectAttributes.addFlashAttribute("message", "Cannot upload file with the same name.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Cannot upload file with the same name.");
             return "redirect:/home";
         }
 
         try {
             this.fileService.addFile(fileUpload, currentUsername);
+            redirectAttributes.addFlashAttribute("successMessage", "File successfully uploaded!");
         } catch (IOException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
             e.printStackTrace();
         }
 
@@ -146,7 +202,10 @@ public class HomeController {
     }
 
     @GetMapping("/file/download")
-    public ResponseEntity downloadFileFromLocal(Authentication authentication, @RequestParam(value = "filename") String filename) {
+    public ResponseEntity downloadFileFromLocal(
+            Authentication authentication,
+            @RequestParam(value = "filename") String filename
+    ) {
         String currentUsername = authentication.getName();
         File file = fileService.getUserFile(currentUsername, filename);
 
@@ -162,10 +221,15 @@ public class HomeController {
     }
 
     @PostMapping("delete/file/{fileId}")
-    public String deleteFile(Authentication authentication, @PathVariable("fileId") Integer fileId) {
+    public String deleteFile(
+            Authentication authentication,
+            @PathVariable("fileId") Integer fileId,
+            RedirectAttributes redirectAttributes
+    ) {
         String currentUsername = authentication.getName();
 
         fileService.deleteFile(fileId, currentUsername);
+        redirectAttributes.addFlashAttribute("successMessage", "File deleted successfully!");
 
         return "redirect:/home";
     }

@@ -10,8 +10,11 @@
     </head>
     <body class="p-3 mb-2 bg-light text-black">
         <div class="container">
-            <div id="flashMessage" th:if="${message}" class="alert alert-danger">
-                <span th:text="${message}"></span>
+            <div id="errorFlashMessage" th:if="${errorMessage}" class="alert alert-danger">
+                <span th:text="${errorMessage}"></span>
+            </div>
+            <div id="successFlashMessage" th:if="${successMessage}" class="alert alert-success">
+                <span th:text="${successMessage}"></span>
             </div>
 
             <div id="logoutDiv">
