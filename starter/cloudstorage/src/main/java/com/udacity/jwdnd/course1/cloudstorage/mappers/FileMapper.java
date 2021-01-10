@@ -2,8 +2,10 @@ package com.udacity.jwdnd.course1.cloudstorage.mappers;
 
 import com.udacity.jwdnd.course1.cloudstorage.models.File;
 import org.apache.ibatis.annotations.*;
+import org.springframework.stereotype.Repository;
 
 @Mapper
+@Repository
 public interface FileMapper {
     @Select("SELECT * FROM FILES WHERE userid = #{userId}")
     File[] getFiles(int userId);
